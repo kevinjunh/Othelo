@@ -26,10 +26,14 @@ class Board:
         #現在の手番の色
         self.currentColor = black
 
+
+    #盤面の変化
     def flip(self, x, y):
 
         #石を置く
         self.rawBoard[x, y] = self.currentColor
+
+        #石を裏返す
 
 
     #石を置く
@@ -52,7 +56,6 @@ class Board:
         self.currentColor = -self.currentColor
 
         return True
-
 
 #ボード作成
 board = Board()
