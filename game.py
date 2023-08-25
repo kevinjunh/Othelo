@@ -9,12 +9,12 @@ class Application(tkinter.Frame):
         self.pack_propagate(0)
         self.create_widgets()
         
-        def create_widgets(self):
-            quit_btn = tkinter.Button(self)
-            quit_btn['text'] = '閉じる'
-            quit_btn['command'] = self.root.destroy
-            quit_btn.pack(side='bottom')
-            
+    def create_widgets(self):
+        quit_btn = tkinter.Button(self)
+        quit_btn['text'] = '閉じる'
+        quit_btn['command'] = self.root.destroy
+        quit_btn.pack(side='bottom')
+        
             
 root = tkinter.Tk()
 root.title('App test')
