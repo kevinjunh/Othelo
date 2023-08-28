@@ -1,4 +1,6 @@
 import numpy as np
+import tkinter as tk
+from tkinter import messagebox
 
 # マスの状態
 empty = 0
@@ -179,38 +181,117 @@ class Othelo:
 
         return False
 
-# メイン
-board = Othelo()
+# # メイン
+# board = Othelo()
 
-while True:
-    board.display()
+# while True:
+#     board.display()
 
-    player_color = '黒' if board.current_color == black else '白'
-    inp = input(f'{player_color}の番です: ')
-    print()
+#     player_color = '黒' if board.current_color == black else '白'
+#     inp = input(f'{player_color}の番です: ')
+#     print()
 
-    if not board.validate_input(inp):
-        print('正しい形式(例:f5)で入力してください')
-        continue
+#     if not board.validate_input(inp):
+#         print('正しい形式(例:f5)で入力してください')
+#         continue
 
-    x = alphabet.index(inp[0]) + 1
-    y = int(inp[1])
+#     x = alphabet.index(inp[0]) + 1
+#     y = int(inp[1])
 
-    if not board.move(x, y):
-        print('そこには置けません')
-        continue
+#     if not board.move(x, y):
+#         print('そこには置けません')
+#         continue
 
-    if board.is_game_over():
-        board.display()
-        print('ゲーム終了')
-        break
+#     if board.is_game_over():
+#         board.display()
+#         print('ゲーム終了')
+#         break
 
-    if not board.skip():
-        continue
+#     if not board.skip():
+#         continue
 
-print()
+# print()
 
-count_black = np.count_nonzero(board.raw_board[:, :] == black)
-count_white = np.count_nonzero(board.raw_board[:, :] == white)
+# count_black = np.count_nonzero(board.raw_board[:, :] == black)
+# count_white = np.count_nonzero(board.raw_board[:, :] == white)
 
-print('```')
+# print('```')
+
+
+class OtheloGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("オセロゲーム")
+
+        # Otheloクラスのインスタンスを作成
+        self.board = Othelo()
+
+        # ゲームボードを表示するためのCanvasウィジェットを作成
+        self.canvas = tk.Canvas(root, width=400, height=400)
+        self.canvas.pack()
+
+        # ゲームボードの描画
+        self.draw_board()
+
+    def draw_board(self):
+        # 以前の描画をクリア
+        self.canvas.delete("all")  
+
+        # ボード上の各マスを描画
+        for row in range(8):
+            for col in range(8):
+                #各マスの左上座標
+                x1, y1 = col * 50, row * 50
+                #各マスの右下座標
+                x2, y2 = x1 + 50, y1 + 50
+
+                # マス目の描画
+                cell_color = "green" if (row + col) % 2 == 0 else "dark green"
+                self.canvas.create_rectangle(x1, y1, x2, y2, fill=cell_color)
+
+                # 石の描画
+                disc = self.board.raw_board[row + 1, col + 1]
+                if disc == black:
+                    self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="black")
+                elif disc == white:
+                    self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="white")
+
+        # マウスクリックイベントをボードにバインド
+        self.canvas.bind("<Button-1>", self.on_click)
+
+    def on_click(self, event):
+        col = event.x // 50
+        row = event.y // 50
+        x = row + 1
+        y = col + 1
+
+        # クリックした位置に石を置けるかを確認し、置ける場合はボードを更新して再描画
+        if self.board.move(x, y):
+            self.draw_board()
+
+            # ゲームが終了したかどうかをチェックし、終了していれば勝者を表示
+            if self.board.is_game_over():
+                self.show_winner()
+            else:
+                # パスして相手のターンに切り替えてボードを再描画
+                self.board.skip()
+                self.draw_board()
+
+    def show_winner(self):
+        count_black = np.count_nonzero(self.board.raw_board[:, :] == black)
+        count_white = np.count_nonzero(self.board.raw_board[:, :] == white)
+
+        # 勝者を判定してメッセージボックスで表示
+        if count_black > count_white:
+            winner = "黒"
+        elif count_black < count_white:
+            winner = "白"
+        else:
+            winner = "引き分け"
+
+        messagebox.showinfo("ゲーム終了", f"勝者: {winner}\n黒: {count_black}個\n白: {count_white}個")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    game = OtheloGUI(root)
+    root.mainloop()
